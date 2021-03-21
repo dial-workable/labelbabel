@@ -11,3 +11,6 @@ class EventCache():
 
     def message(slef):
         return k8s.PodEvent('type', 'cluster', 'ns', 'name', 'labels', 'start_time', 'uid')
+
+    def get_checksum(slef, event: k8s.PodEvent):
+        pass
