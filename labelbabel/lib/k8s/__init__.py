@@ -7,7 +7,7 @@ from kubernetes import client, config, watch
 __all__ = ["cache"]
 
 PodEvent = collections.namedtuple(
-    "PodEvent", ["cluster", "ns", "name", "labels", "start_time", "end_time", "uid"]
+    "PodEvent", ["cluster", "ns", "name", "labels", "start_time", "stop_time", "uid"]
 )
 
 
@@ -40,7 +40,6 @@ class Scraper:
                 if self._interrupt:
                     self._k8s_watch.stop()
                 result = PodEvent(
-                    event["type"],
                     self._cluster_name,
                     event["object"].metadata.namespace,
                     event["object"].metadata.name,

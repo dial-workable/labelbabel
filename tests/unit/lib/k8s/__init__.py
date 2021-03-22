@@ -11,7 +11,7 @@ TEST_DATA_POD_EVENTS = [
         'name': 'apodname',
         'labels': {'label1': 'value1','label2': 'value2','label3': 'value3'},
         'start_time': datetime.datetime(2021,10,12,17,12,5),
-        'end_time': datetime.datetime(2021,10,12,16,10,4),
+        'stop_time': datetime.datetime(2021,10,12,16,10,4),
         'uid': 'dadf-adsf-asdf-asd-fa-sdf-asd',
     },
     {
@@ -20,7 +20,7 @@ TEST_DATA_POD_EVENTS = [
         'name': 'apodname',
         'labels': {'label1': 'value1','label2': 'value2','label3': 'value3'},
         'start_time': datetime.datetime(2021,10,12,17,12,5),
-        'end_time': None,
+        'stop_time': None,
         'uid': 'dadf-adsf-asdf-asd-fa-sdf-asd',
     },
 ]
@@ -29,8 +29,8 @@ TEST_DATA_POD_EVENTS = [
 
 class PodEventTestCase(unittest.TestCase):
     def test_fields_positioning(self):
-        """This test verifies that the files of the named tuple PodEvent,
-        are all presest and at the correct position.
+        """verify positioning of the PodEvent fields.
+        The fields must be present and at the correct position.
         """
         for i in enumerate(TEST_DATA_POD_EVENTS):
             ds = i[1]
@@ -40,7 +40,7 @@ class PodEventTestCase(unittest.TestCase):
                 ds['name'],
                 ds['labels'],
                 ds['start_time'],
-                ds['end_time'],
+                ds['stop_time'],
                 ds['uid'],
             )
             self.assertEqual(e.cluster, ds['cluster'], f'Processing data-set {i[0]}')
@@ -48,5 +48,5 @@ class PodEventTestCase(unittest.TestCase):
             self.assertEqual(e.name, ds['name'], f'Processing data-set {i[0]}')
             self.assertEqual(e.labels, ds['labels'], f'Processing data-set {i[0]}')
             self.assertEqual(e.start_time, ds['start_time'], f'Processing data-set {i[0]}')
-            self.assertEqual(e.end_time, ds['end_time'], f'Processing data-set {i[0]}')
+            self.assertEqual(e.stop_time, ds['stop_time'], f'Processing data-set {i[0]}')
             self.assertEqual(e.uid, ds['uid'], f'Processing data-set {i[0]}')
