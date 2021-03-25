@@ -4,7 +4,11 @@ import labelbabel.lib.k8s as k8s
 import unittest
 import datetime
 
-TEST_DATA_POD_EVENTS = [
+from typing import List, Union, Dict, Generator, Any, Callable
+
+TEST_DATA_POD_EVENTS: List[
+    Dict[str, Union[None, datetime.datetime, str, Dict[str, str]]]
+] = [
     {
         "type": "MODIFY",
         "node_name": "node1",
@@ -15,7 +19,7 @@ TEST_DATA_POD_EVENTS = [
         "start_time": datetime.datetime(2021, 10, 12, 17, 12, 5),
         "stop_time": datetime.datetime(2021, 10, 12, 16, 10, 4),
         "uid": "dadf-adsf-asdf-asd-fa-sdf-asd",
-        "checksum": '14c833711bdbf8cdbef24e471ac41488',
+        "checksum": "14c833711bdbf8cdbef24e471ac41488",
     },
     {
         "type": "MODIFY",
@@ -27,7 +31,7 @@ TEST_DATA_POD_EVENTS = [
         "start_time": datetime.datetime(2021, 10, 12, 17, 12, 5),
         "stop_time": None,
         "uid": "dadf-adsf-asdf-asd-fa-sdf-asd",
-        "checksum": '14c833711bdbf8cdbef24e471ac41488',
+        "checksum": "14c833711bdbf8cdbef24e471ac41488",
     },
     {
         "type": "ADD",
@@ -39,7 +43,7 @@ TEST_DATA_POD_EVENTS = [
         "start_time": datetime.datetime(2021, 10, 12, 17, 12, 6),
         "stop_time": datetime.datetime(2021, 10, 12, 17, 12, 16),
         "uid": "dadf-adsf-asdf-asd-fa-sdf-asd",
-        "checksum": '14c833711bdbf8cdbef24e471ac41488',
+        "checksum": "14c833711bdbf8cdbef24e471ac41488",
     },
     {
         "type": "MODIFY",
@@ -51,14 +55,14 @@ TEST_DATA_POD_EVENTS = [
         "start_time": datetime.datetime(2021, 10, 12, 17, 12, 5),
         "stop_time": None,
         "uid": "dadf-adsf-asdf-asd-fa-sdf-asd",
-        "checksum": '862db5091b054b864468edd40eff96bb',
+        "checksum": "862db5091b054b864468edd40eff96bb",
     },
 ]
 TEST_DATA_POD_EVENTS_UNIQUE_COUNT = 2
 
 
 class PodEventTestCase(unittest.TestCase):
-    def test_fields_positioning(self):
+    def test_fields_positioning(self) -> None:
         """verify positioning of the PodEvent fields.
         The fields must be present and at the correct position.
         """
@@ -91,10 +95,12 @@ class PodEventTestCase(unittest.TestCase):
 
 
 class ScraperTestCase(unittest.TestCase):
-    @classmethod
-    def _get_pods_demo_data1(self):
-        return [
-            k8s.PodEvent(
+    _original_get_pods: Callable[[k8s.Scraper], Generator[k8s.PodEvent, None, None]]
+
+    @staticmethod
+    def _get_pods_demo_data1() -> Generator[k8s.PodEvent, None, None]:
+        for e in TEST_DATA_POD_EVENTS:
+            yield k8s.PodEvent(
                 e["type"],
                 e["node_name"],
                 e["cluster"],
@@ -106,31 +112,28 @@ class ScraperTestCase(unittest.TestCase):
                 e["uid"],
                 e["checksum"],
             )
-            for e in TEST_DATA_POD_EVENTS
-        ]
 
     @classmethod
-    def setUpClass(cls):
+    def setUpClass(cls) -> None:
         cls._original_get_pods = k8s.Scraper._get_pods
-        k8s.Scraper._get_pods = cls._get_pods_demo_data1
+        k8s.Scraper._get_pods = cls._get_pods_demo_data1 # type: ignore
 
     @classmethod
-    def tearDownClass(cls):
-        k8s.Scraper._get_pods = cls._original_get_pods
-        cls._original_get_pods = None
+    def tearDownClass(cls) -> None:
+        k8s.Scraper._get_pods = cls._original_get_pods # type: ignore
 
-    def test_podevent_hash(self):
+    def test_podevent_hash(self) -> None:
         """test the hashing algorithm for the PodEvent objects"""
         count = 0
         for data in TEST_DATA_POD_EVENTS:
             self.assertEqual(
-                k8s.Scraper._calculate_hash(data['uid'], data['labels']),
-                data['checksum'],
-                f'Testing dataset with index(zero-based) {count}',
+                k8s.Scraper._calculate_hash(data["uid"], data["labels"]), # type: ignore
+                data["checksum"],
+                f"Testing dataset with index(zero-based) {count}",
             )
             count += 1
 
-    def test_scrape(self):
+    def test_scrape(self) -> None:
         """Validate if the scraper gets back the correct number of events"""
         s = k8s.Scraper("test-cluster-a")
         scraped_events = 0

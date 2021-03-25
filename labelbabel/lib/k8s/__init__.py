@@ -4,13 +4,25 @@ import hashlib
 import collections
 import labelbabel.lib.k8s.cache as cache
 
-from kubernetes import client, config, watch
+from typing import Dict, Generator
+from kubernetes import client, config, watch  # type: ignore
 
-__all__ = ['cache']
+__all__ = ["cache"]
 
 PodEvent = collections.namedtuple(
-    'PodEvent', ['type', 'node_name', 'cluster', 'ns', 'name',
-                 'labels', 'start_time', 'stop_time', 'uid', 'checksum']
+    "PodEvent",
+    [
+        "type",
+        "node_name",
+        "cluster",
+        "ns",
+        "name",
+        "labels",
+        "start_time",
+        "stop_time",
+        "uid",
+        "checksum",
+    ],
 )
 
 
@@ -21,7 +33,7 @@ class Scraper:
     it suppresses all the pod events comming from the cluster which do not change the info we are not interested in.
     """
 
-    def __init__(self, cluster_name):
+    def __init__(self, cluster_name: str) -> None:
         config.load_kube_config()
         self._k8s_v1 = client.CoreV1Api()
         self._k8s_watch = watch.Watch()
@@ -30,7 +42,7 @@ class Scraper:
         self._cache = cache.EventCache()
 
     @classmethod
-    def _calculate_hash(cls, pod_uid, pod_labels):
+    def _calculate_hash(cls, pod_uid: str, pod_labels: Dict[str, str]) -> str:
         """_calculate_hash method calculates a hash from a given labelbabel.lib.k8s.PodEvent namedtuple.
 
         Args:
@@ -59,7 +71,7 @@ class Scraper:
 
         return hasher.hexdigest()
 
-    def _get_pods(self):
+    def _get_pods(self) -> Generator[PodEvent, None, None]:
         """returns the pods by watching k8s cluster.
 
         Yields:
@@ -74,24 +86,26 @@ class Scraper:
                     self._k8s_watch.stop()
 
                 result = PodEvent(
-                    event['type'],
-                    event['object'].spec.node_name,
+                    event["type"],
+                    event["object"].spec.node_name,
                     self._cluster_name,
-                    event['object'].metadata.namespace,
-                    event['object'].metadata.name,
-                    event['object'].metadata.labels,
-                    event['object'].status.start_time,
+                    event["object"].metadata.namespace,
+                    event["object"].metadata.name,
+                    event["object"].metadata.labels,
+                    event["object"].status.start_time,
                     None,
-                    event['object'].metadata.uid,
-                    self._calculate_hash(event['object'].metadata.uid, event['object'].metadata.labels),
+                    event["object"].metadata.uid,
+                    self._calculate_hash(
+                        event["object"].metadata.uid, event["object"].metadata.labels
+                    ),
                 )
 
                 yield result
 
-    def get_events(self):
+    def get_events(self) -> Generator[PodEvent, None, None]:
         for p in self._get_pods():
             new_event = self._cache.add_event(p)
-            if p.type == 'DELETED':
+            if p.type == "DELETED":
                 self._cache.remove_event(p)
-            if new_event or p.type == 'DELETED':
+            if new_event or p.type == "DELETED":
                 yield p

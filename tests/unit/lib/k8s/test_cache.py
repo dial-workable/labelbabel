@@ -97,7 +97,7 @@ TEST_EVENT_DATA_UNIQUE = [
 
 
 class CacheTestCase(unittest.TestCase):
-    def test_cache_clearing(self):
+    def test_cache_clearing(self) -> None:
         """test the cache clearing method
         The test load and clears the cache two time to catch possible regression errors in the cases
         where we add add items in a previously "cleared" cache.
@@ -142,7 +142,7 @@ class CacheTestCase(unittest.TestCase):
             )
             count += 1
 
-    def test_item_removal(self):
+    def test_item_removal(self) -> None:
         """test the cache ability to "forget" an item
         """
         c = cache.EventCache()

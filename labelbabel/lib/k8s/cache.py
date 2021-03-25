@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from typing import Set
+
 import labelbabel.lib.k8s as k8s
 
 
@@ -9,10 +11,10 @@ class EventCache:
     pod modification events which are not modifying any fields we are interested in.
     """
 
-    def __init__(self):
-        self._cache = set()
+    def __init__(self) -> None:
+        self._cache: Set[str] = set()
 
-    def add_event(self, event):
+    def add_event(self, event: k8s.PodEvent) -> bool:
         """add_event method is used to add a new event into the cache.
         The method calculates a hash form the data in the event to check if
         a similar object exists inside the cache.
@@ -35,7 +37,7 @@ class EventCache:
 
         return False
 
-    def remove_event(self, event):
+    def remove_event(self, event: k8s.PodEvent) -> bool:
         """remove_event method cand an event and remove/forget from the cache if it is sored in it
 
         Args:
@@ -60,12 +62,10 @@ class EventCache:
 
         return True
 
-    def clear(self):
+    def clear(self) -> None:
         """clear method can be used to clear the cache from all the previously stored items."""
         self._cache = set()
 
-    def __contains__(self, item):
+    def __contains__(self, item: object) -> bool:
         """__contains__ magic method implementation allows us to use the "in" operator on the EventCache object"""
-        return isinstance(item, k8s.PodEvent) and (
-            item.checksum in self._cache
-        )
+        return isinstance(item, k8s.PodEvent) and (item.checksum in self._cache)
