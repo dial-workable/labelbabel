@@ -147,3 +147,54 @@ class CacheTestCase(unittest.TestCase):
                 f"Item with index(zero-based) {count} should be missing from the cache after 2nd clearing",
             )
             count += 1
+
+    def test_item_removal(self):
+        """test the cache ability to "forget" an item
+        """
+        c = cache.EventCache()
+
+        # Load test events
+        count = 0
+        for data in TEST_EVENT_DATA_UNIQUE:
+            c.add_event(data["event"])
+            self.assertTrue(
+                data["event"] in c,
+                f"Item with index(zero-based) {count} should exist in the cache",
+            )
+            count += 1
+
+        # Remove test events
+        count = 0
+        for data in TEST_EVENT_DATA_UNIQUE:
+            self.assertTrue(
+                c.remove_event(data["event"]),
+                f"Item with index(zero-based) {count} should exist in the cache in order to be removed",
+            )
+            self.assertFalse(
+                c.remove_event(data["event"]),
+                f"Item with index(zero-based) {count} should not exist in the cache after being removed",
+            )
+            count += 1
+
+        # Load test events
+        count = 0
+        for data in TEST_EVENT_DATA_UNIQUE:
+            c.add_event(data["event"])
+            self.assertTrue(
+                data["event"] in c,
+                f"Item with index(zero-based) {count} should exist in the cache",
+            )
+            count += 1
+
+        # Remove test events in reverse order
+        count = 0
+        for data in reversed(TEST_EVENT_DATA_UNIQUE):
+            self.assertTrue(
+                c.remove_event(data["event"]),
+                f"Item with index(zero-based) {count} should exist in the cache in order to be removed",
+            )
+            self.assertFalse(
+                c.remove_event(data["event"]),
+                f"Item with index(zero-based) {count} should not exist in the cache after being removed",
+            )
+            count += 1

@@ -58,6 +58,32 @@ class EventCache:
 
         return False
 
+    def remove_event(self, event):
+        """remove_event method cand an event and remove/forget from the cache if it is sored in it
+
+        Args:
+            event (labelbabel.lib.k8s.PodEvent): The event to be removed from the cache
+
+        Raises:
+            TypeError: The method will throw a type error if the event parameter is of the wrond type.
+
+        Returns:
+            bool: True if the event has been found in the cache and removed.
+                  False if the event has not been found in the cache, so there is nothing to remove.
+        """
+        if not isinstance(event, k8s.PodEvent):
+            raise TypeError(
+                "remove_event method only accepts parameters of type labelbabel.lib.k8s.PodEvent"
+            )
+
+        hash = self._calculate_hash(event)
+        try:
+            self._cache.remove((hash))
+        except KeyError:
+            return False
+
+        return True
+
     def clear(self):
         """clear method can be used to clear the cache from all the previously stored items."""
         self._cache = set()
