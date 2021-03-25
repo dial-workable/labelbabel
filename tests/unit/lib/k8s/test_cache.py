@@ -6,80 +6,86 @@ import datetime
 
 TEST_EVENT_DATA = [
     {
-        "event": k8s.PodEvent(
-            "cluster",
-            "ns",
-            "name",
-            {"app": "application1", "process": "web"},
+        'event': k8s.PodEvent(
+            'MODIFY',
+            'cluster',
+            'ns',
+            'name',
+            {'app': 'application1', 'process': 'web'},
             datetime.datetime(2021, 2, 12, 18, 11, 5),
             datetime.datetime(2021, 2, 13, 19, 15, 25),
-            "dsasdf-adsf-asdf-faf2323f4rdsfs-3432-f3fefs-3243fwefw",
+            'dsasdf-adsf-asdf-faf2323f4rdsfs-3432-f3fefs-3243fwefw',
         ),
-        "expected": "c83cdafef94251b535616814c57da72e",
+        'expected': 'c83cdafef94251b535616814c57da72e',
     },
     {
-        "event": k8s.PodEvent(
-            "cluster",
-            "ns",
-            "name",
-            {"process": "web", "app": "application1"},
+        'event': k8s.PodEvent(
+            'MODIFY',
+            'cluster',
+            'ns',
+            'name',
+            {'process': 'web', 'app': 'application1'},
             datetime.datetime(2021, 2, 12, 18, 11, 5),
             datetime.datetime(2021, 2, 13, 19, 15, 25),
-            "dsasdf-adsf-asdf-faf2323f4rdsfs-3432-f3fefs-3243fwefw",
+            'dsasdf-adsf-asdf-faf2323f4rdsfs-3432-f3fefs-3243fwefw',
         ),
-        "expected": "c83cdafef94251b535616814c57da72e",
+        'expected': 'c83cdafef94251b535616814c57da72e',
     },
     {
-        "event": k8s.PodEvent(
-            "cluster",
-            "ns",
-            "name",
+        'event': k8s.PodEvent(
+            'MODIFY',
+            'cluster',
+            'ns',
+            'name',
             {},
             datetime.datetime(2021, 2, 12, 18, 11, 5),
             datetime.datetime(2021, 2, 13, 19, 15, 25),
-            "dsasdf-adsf-asdf-faf2323f4rdsfs-3432-f3fefs-3243fwefw",
+            'dsasdf-adsf-asdf-faf2323f4rdsfs-3432-f3fefs-3243fwefw',
         ),
-        "expected": "fb78ccff9715954b486f6a2634209b2b",
+        'expected': 'fb78ccff9715954b486f6a2634209b2b',
     },
     {
-        "event": k8s.PodEvent(
-            "cluster",
-            "ns",
-            "name",
+        'event': k8s.PodEvent(
+            'MODIFY',
+            'cluster',
+            'ns',
+            'name',
             None,
             datetime.datetime(2021, 2, 12, 18, 11, 5),
             None,
-            "dsasdf-adsf-asdf-faf2323f4rdsfs-3432-f3fefs-3243fwefw",
+            'dsasdf-adsf-asdf-faf2323f4rdsfs-3432-f3fefs-3243fwefw',
         ),
-        "expected": "fb78ccff9715954b486f6a2634209b2b",
+        'expected': 'fb78ccff9715954b486f6a2634209b2b',
     },
 ]
 
 
 TEST_EVENT_DATA_UNIQUE = [
     {
-        "event": k8s.PodEvent(
-            "cluster",
-            "ns",
-            "name",
-            {"process": "web", "app": "application1"},
+        'event': k8s.PodEvent(
+            'MODIFY',
+            'cluster',
+            'ns',
+            'name',
+            {'process': 'web', 'app': 'application1'},
             datetime.datetime(2021, 2, 12, 18, 11, 5),
             datetime.datetime(2021, 2, 13, 19, 15, 25),
-            "dsasdf-adsf-asdf-faf2323f4rdsfs-3432-f3fefs-3243fwefw",
+            'dsasdf-adsf-asdf-faf2323f4rdsfs-3432-f3fefs-3243fwefw',
         ),
-        "expected": "c83cdafef94251b535616814c57da72e",
+        'expected': 'c83cdafef94251b535616814c57da72e',
     },
     {
-        "event": k8s.PodEvent(
-            "cluster",
-            "ns",
-            "name",
+        'event': k8s.PodEvent(
+            'MODIFY',
+            'cluster',
+            'ns',
+            'name',
             {},
             datetime.datetime(2021, 2, 12, 18, 11, 5),
             datetime.datetime(2021, 2, 13, 19, 15, 25),
-            "dsasdf-adsf-asdf-faf2323f4rdsfs-3432-f3fefs-3243fwefw",
+            'dsasdf-adsf-asdf-faf2323f4rdsfs-3432-f3fefs-3243fwefw',
         ),
-        "expected": "fb78ccff9715954b486f6a2634209b2b",
+        'expected': 'fb78ccff9715954b486f6a2634209b2b',
     },
 ]
 
