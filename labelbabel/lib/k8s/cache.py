@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 import labelbabel.lib.k8s as k8s
-import hashlib
 
 
 class EventCache:
@@ -12,27 +11,6 @@ class EventCache:
 
     def __init__(self):
         self._cache = set()
-
-    def _calculate_hash(self, event):
-        """_calculate_hash is a function which calculates a hash from a given labelbabel.lib.k8s.PodEvent namedtuple.
-
-        Args:
-            event (labelbabel.lib.k8s.PodEvent): The event object for which we want to calculate the hash
-
-        Returns:
-            str: The calculated has is based on the uid and the labels of the given object. Ordering of the labels
-                in the event do not matter.
-        """
-        hasher = hashlib.md5()
-
-        hasher.update(event.uid.encode("utf-8"))
-
-        sorted_keys = [] if not event.labels else sorted(event.labels.keys())
-        for k in sorted_keys:
-            hasher.update(k.encode("utf-8"))
-            hasher.update(event.labels[k].encode("utf-8"))
-
-        return hasher.hexdigest()
 
     def add_event(self, event):
         """add_event method is used to add a new event into the cache.
@@ -51,9 +29,8 @@ class EventCache:
                 "add_event method only accepts parameters of type labelbabel.lib.k8s.PodEvent"
             )
 
-        hash = self._calculate_hash(event)
-        if hash not in self._cache:
-            self._cache.add(hash)
+        if event.checksum not in self._cache:
+            self._cache.add(event.checksum)
             return True
 
         return False
@@ -76,9 +53,8 @@ class EventCache:
                 "remove_event method only accepts parameters of type labelbabel.lib.k8s.PodEvent"
             )
 
-        hash = self._calculate_hash(event)
         try:
-            self._cache.remove((hash))
+            self._cache.remove((event.checksum))
         except KeyError:
             return False
 
@@ -91,5 +67,5 @@ class EventCache:
     def __contains__(self, item):
         """__contains__ magic method implementation allows us to use the "in" operator on the EventCache object"""
         return isinstance(item, k8s.PodEvent) and (
-            self._calculate_hash(item) in self._cache
+            item.checksum in self._cache
         )

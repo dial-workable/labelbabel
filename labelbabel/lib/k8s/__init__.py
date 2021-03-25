@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import hashlib
 import collections
 import labelbabel.lib.k8s.cache as cache
 
@@ -8,7 +9,8 @@ from kubernetes import client, config, watch
 __all__ = ['cache']
 
 PodEvent = collections.namedtuple(
-    'PodEvent', ['type', 'cluster', 'ns', 'name', 'labels', 'start_time', 'stop_time', 'uid']
+    'PodEvent', ['type', 'node_name', 'cluster', 'ns', 'name',
+                 'labels', 'start_time', 'stop_time', 'uid', 'checksum']
 )
 
 
@@ -27,6 +29,36 @@ class Scraper:
         self._cluster_name = cluster_name
         self._cache = cache.EventCache()
 
+    @classmethod
+    def _calculate_hash(cls, pod_uid, pod_labels):
+        """_calculate_hash method calculates a hash from a given labelbabel.lib.k8s.PodEvent namedtuple.
+
+        Args:
+            event (labelbabel.lib.k8s.PodEvent): The event object for which we want to calculate the hash
+
+        Returns:
+            str: The calculated has is based on the uid and the labels of the given object. Ordering of the labels
+                in the event do not matter.
+
+        Args:
+            pod_uid (str): The uid of pod
+            pod_labels (Dict[str,str]): The labels dictonary of a returned pod
+
+        Returns:
+            str: The calculated hash based on the given uid and the labels. Ordering of the labels
+                in the event does not matter.
+        """
+        hasher = hashlib.md5()
+
+        hasher.update(pod_uid.encode("utf-8"))
+
+        sorted_keys = [] if not pod_labels else sorted(pod_labels.keys())
+        for k in sorted_keys:
+            hasher.update(k.encode("utf-8"))
+            hasher.update(pod_labels[k].encode("utf-8"))
+
+        return hasher.hexdigest()
+
     def _get_pods(self):
         """returns the pods by watching k8s cluster.
 
@@ -43,6 +75,7 @@ class Scraper:
 
                 result = PodEvent(
                     event['type'],
+                    event['object'].spec.node_name,
                     self._cluster_name,
                     event['object'].metadata.namespace,
                     event['object'].metadata.name,
@@ -50,6 +83,7 @@ class Scraper:
                     event['object'].status.start_time,
                     None,
                     event['object'].metadata.uid,
+                    self._calculate_hash(event['object'].metadata.uid, event['object'].metadata.labels),
                 )
 
                 yield result
@@ -57,5 +91,7 @@ class Scraper:
     def get_events(self):
         for p in self._get_pods():
             new_event = self._cache.add_event(p)
+            if p.type == 'DELETED':
+                self._cache.remove_event(p)
             if new_event or p.type == 'DELETED':
                 yield p

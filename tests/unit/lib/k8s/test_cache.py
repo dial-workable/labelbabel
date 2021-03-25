@@ -8,6 +8,7 @@ TEST_EVENT_DATA = [
     {
         'event': k8s.PodEvent(
             'MODIFY',
+            'node1',
             'cluster',
             'ns',
             'name',
@@ -15,12 +16,13 @@ TEST_EVENT_DATA = [
             datetime.datetime(2021, 2, 12, 18, 11, 5),
             datetime.datetime(2021, 2, 13, 19, 15, 25),
             'dsasdf-adsf-asdf-faf2323f4rdsfs-3432-f3fefs-3243fwefw',
+            'c83cdafef94251b535616814c57da72e',
         ),
-        'expected': 'c83cdafef94251b535616814c57da72e',
     },
     {
         'event': k8s.PodEvent(
             'MODIFY',
+            'node1',
             'cluster',
             'ns',
             'name',
@@ -28,12 +30,13 @@ TEST_EVENT_DATA = [
             datetime.datetime(2021, 2, 12, 18, 11, 5),
             datetime.datetime(2021, 2, 13, 19, 15, 25),
             'dsasdf-adsf-asdf-faf2323f4rdsfs-3432-f3fefs-3243fwefw',
+            'c83cdafef94251b535616814c57da72e',
         ),
-        'expected': 'c83cdafef94251b535616814c57da72e',
     },
     {
         'event': k8s.PodEvent(
             'MODIFY',
+            'node1',
             'cluster',
             'ns',
             'name',
@@ -41,12 +44,13 @@ TEST_EVENT_DATA = [
             datetime.datetime(2021, 2, 12, 18, 11, 5),
             datetime.datetime(2021, 2, 13, 19, 15, 25),
             'dsasdf-adsf-asdf-faf2323f4rdsfs-3432-f3fefs-3243fwefw',
+            'fb78ccff9715954b486f6a2634209b2b',
         ),
-        'expected': 'fb78ccff9715954b486f6a2634209b2b',
     },
     {
         'event': k8s.PodEvent(
             'MODIFY',
+            'node1',
             'cluster',
             'ns',
             'name',
@@ -54,8 +58,8 @@ TEST_EVENT_DATA = [
             datetime.datetime(2021, 2, 12, 18, 11, 5),
             None,
             'dsasdf-adsf-asdf-faf2323f4rdsfs-3432-f3fefs-3243fwefw',
+            'fb78ccff9715954b486f6a2634209b2b',
         ),
-        'expected': 'fb78ccff9715954b486f6a2634209b2b',
     },
 ]
 
@@ -64,6 +68,7 @@ TEST_EVENT_DATA_UNIQUE = [
     {
         'event': k8s.PodEvent(
             'MODIFY',
+            'node1',
             'cluster',
             'ns',
             'name',
@@ -71,12 +76,13 @@ TEST_EVENT_DATA_UNIQUE = [
             datetime.datetime(2021, 2, 12, 18, 11, 5),
             datetime.datetime(2021, 2, 13, 19, 15, 25),
             'dsasdf-adsf-asdf-faf2323f4rdsfs-3432-f3fefs-3243fwefw',
+            'c83cdafef94251b535616814c57da72e',
         ),
-        'expected': 'c83cdafef94251b535616814c57da72e',
     },
     {
         'event': k8s.PodEvent(
             'MODIFY',
+            'node1',
             'cluster',
             'ns',
             'name',
@@ -84,26 +90,14 @@ TEST_EVENT_DATA_UNIQUE = [
             datetime.datetime(2021, 2, 12, 18, 11, 5),
             datetime.datetime(2021, 2, 13, 19, 15, 25),
             'dsasdf-adsf-asdf-faf2323f4rdsfs-3432-f3fefs-3243fwefw',
+            'fb78ccff9715954b486f6a2634209b2b',
         ),
-        'expected': 'fb78ccff9715954b486f6a2634209b2b',
     },
 ]
 
 
 class CacheTestCase(unittest.TestCase):
-    def test_podevent_hash(self):
-        """test the hashing algorithm for the PodEvent objects"""
-        c = cache.EventCache()
-        count = 0
-        for data in TEST_EVENT_DATA:
-            self.assertEqual(
-                c._calculate_hash(data["event"]),
-                data["expected"],
-                f"Testing dataset with index(zero-based) {count}",
-            )
-            count += 1
-
-    def test_chach_clearing(self):
+    def test_cache_clearing(self):
         """test the cache clearing method
         The test load and clears the cache two time to catch possible regression errors in the cases
         where we add add items in a previously "cleared" cache.
