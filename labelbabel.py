@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import pprint
-import lib.k8s
+import labelbabel.lib.k8s as k8s
 
 
 # @click.command()
@@ -31,9 +31,9 @@ def handle(event, cluster_name: str, memory: dict):
 
 
 def main():
-    s = lib.k8s.Scraper('test-cluster')
+    s = k8s.Scraper('test-cluster')
     for e in s.get_events():
-        print(repr(e))
+        print(repr(e) + "\n")
 
 
 if __name__ == '__main__':
