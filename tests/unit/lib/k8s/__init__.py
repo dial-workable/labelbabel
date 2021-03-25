@@ -46,7 +46,7 @@ TEST_DATA_POD_EVENTS = [
         'uid': 'dadf-adsf-asdf-asd-fa-sdf-asd',
     },
 ]
-
+TEST_DATA_POD_EVENTS_UNIQUE_COUNT = 2
 
 
 class PodEventTestCase(unittest.TestCase):
@@ -71,6 +71,47 @@ class PodEventTestCase(unittest.TestCase):
             self.assertEqual(e.ns, ds['ns'], f'Processing data-set {i[0]}')
             self.assertEqual(e.name, ds['name'], f'Processing data-set {i[0]}')
             self.assertEqual(e.labels, ds['labels'], f'Processing data-set {i[0]}')
-            self.assertEqual(e.start_time, ds['start_time'], f'Processing data-set {i[0]}')
-            self.assertEqual(e.stop_time, ds['stop_time'], f'Processing data-set {i[0]}')
+            self.assertEqual(
+                e.start_time, ds['start_time'], f'Processing data-set {i[0]}'
+            )
+            self.assertEqual(
+                e.stop_time, ds['stop_time'], f'Processing data-set {i[0]}'
+            )
             self.assertEqual(e.uid, ds['uid'], f'Processing data-set {i[0]}')
+
+
+class ScraperTestCase(unittest.TestCase):
+    @classmethod
+    def _get_pods_demo_data1(self):
+        return [
+            k8s.PodEvent(
+                e['type'],
+                e['cluster'],
+                e['ns'],
+                e['name'],
+                e['labels'],
+                e['start_time'],
+                e['stop_time'],
+                e['uid'],
+            )
+            for e in TEST_DATA_POD_EVENTS
+        ]
+
+    @classmethod
+    def setUpClass(cls):
+        cls._original_get_pods = k8s.Scraper._get_pods
+        k8s.Scraper._get_pods = cls._get_pods_demo_data1
+
+    @classmethod
+    def tearDownClass(cls):
+        k8s.Scraper._get_pods = cls._original_get_pods
+        cls._original_get_pods = None
+
+    def test_scrape(self):
+        """Validate if the scraper gets back the correct number of events
+        """
+        s = k8s.Scraper('test-cluster-a')
+        scraped_events = 0
+        for e in s.get_events():
+            scraped_events += 1
+        self.assertEqual(scraped_events, TEST_DATA_POD_EVENTS_UNIQUE_COUNT)

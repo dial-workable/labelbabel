@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 
 import collections
+import labelbabel.lib.k8s.cache as cache
 
 from kubernetes import client, config, watch
 
-__all__ = ["cache"]
+__all__ = ['cache']
 
 PodEvent = collections.namedtuple(
     'PodEvent', ['type', 'cluster', 'ns', 'name', 'labels', 'start_time', 'stop_time', 'uid']
@@ -24,13 +25,13 @@ class Scraper:
         self._k8s_watch = watch.Watch()
         self._interrupt = False
         self._cluster_name = cluster_name
-        self._cache = {}
+        self._cache = cache.EventCache()
 
     def _get_pods(self):
         """returns the pods by watching k8s cluster.
 
         Yields:
-            scraper.Event: The named tupple
+            labelbabel.lib.k8s.PodEvent: A namedtuple representing an event from the lifecycle of a pod (e.g. creation, deletion, modification)
         """
         self._interrupt = False
         while not self._interrupt:
@@ -54,5 +55,7 @@ class Scraper:
                 yield result
 
     def get_events(self):
-        for i in self._get_pods():
-            yield i
+        for p in self._get_pods():
+            new_event = self._cache.add_event(p)
+            if new_event or p.type == 'DELETED':
+                yield p

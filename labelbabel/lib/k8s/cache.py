@@ -44,7 +44,7 @@ class EventCache:
 
         Returns:
             bool: True if the added event has been successfully added.
-                False if the object was already added in the cache.
+                  False if the object was already in the cache.
         """
         if not isinstance(event, k8s.PodEvent):
             raise TypeError(
